@@ -10,6 +10,18 @@ class PostgresEvents():
     def _connect(self):
         return psycopg2.connect(**self.db_config)
     
+    def save_type_event(self, event_type, event_type_desc=""):
+        """Salva o tipo do evento no banco de dados."""
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                            INSERT INTO telegram_type_events (type_name) VALUES (%s)
+                            ON CONFLICT (type_name)
+                            DO UPDATE SET 
+                            hits = telegram_type_events.hits + 1;
+                """, (event_type,))
+                conn.commit()
+    
     def save_event(self, event):
         """Salva um evento bruto no banco de dados."""
         # self._set_last_event(event)
