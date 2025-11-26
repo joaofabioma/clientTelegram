@@ -1,0 +1,15 @@
+# Força arquivos de texto a usarem LF
+* text=auto eol=lf
+
+# Python
+*.py text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+# Arquivos de configuração
+*.txt text eol=lf
+*.md  text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
