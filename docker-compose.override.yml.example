@@ -1,0 +1,20 @@
+# Exemplo de override para desenvolvimento local
+# Copie para docker-compose.override.yml para usar
+
+services:
+  telegram-client:
+    environment:
+      # Modo desenvolvimento
+      - FLASK_ENV=development
+      - USE_GUNICORN=false
+      - RUN_MODE=all
+    volumes:
+      # Monta código para desenvolvimento (hot-reload)
+      - .:/app
+      # Evita sobrescrever dependências instaladas
+      - /app/__pycache__
+    ports:
+      - "5000:5000"
+      # Porta adicional para debug se necessário
+      - "5678:5678"  # debugpy
+

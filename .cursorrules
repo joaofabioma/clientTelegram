@@ -1,0 +1,48 @@
+# Regras para Cursor AI - Client Telegram
+
+## Contexto do Projeto
+Este é um cliente Telegram em Python que:
+- Usa Telethon para conectar ao Telegram
+- Armazena sessões e eventos em PostgreSQL (banco externo)
+- Possui uma GUI Flask para visualização de dados
+- Está configurado para produção com Docker
+
+## Diretrizes de Código
+
+### Python
+- Use type hints quando possível
+- Seguir PEP 8
+- Prefira f-strings sobre .format() ou %
+- Use async/await adequadamente para operações assíncronas
+
+### Banco de Dados
+- Sempre usar context managers (with) para conexões
+- Fechar conexões explicitamente
+- Tratar exceções de conexão adequadamente
+
+### Flask/GUI
+- Usar modos de produção (sem debug=True)
+- Implementar tratamento de erros robusto
+- Usar variáveis de ambiente para configuração
+
+### Docker
+- Multi-stage builds para otimização
+- Usuário não-root
+- Variáveis de ambiente para configuração
+- Health checks adequados
+
+## Prioridades
+1. Segurança (credenciais em variáveis de ambiente)
+2. Performance (conexões de banco otimizadas)
+3. Manutenibilidade (código limpo e documentado)
+4. Produção (sem debug, logs adequados)
+
+## Evitar
+- Hardcoding de credenciais
+- Debug em produção
+- Commits de arquivos sensíveis (.env, .session)
+- Código não utilizado ou comentado desnecessário
+
+## Responder sempre em Português
+Todas as respostas devem ser em português brasileiro.
+

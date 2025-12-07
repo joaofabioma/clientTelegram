@@ -3,3 +3,6 @@ setuptools
 cryptg
 pillow
 python-dotenv
+flask
+psycopg2-binary
+gunicorn
