@@ -18,7 +18,7 @@ services:
       - DB_CONFIG_DBNAME=${DB_CONFIG_DBNAME}
       - DB_CONFIG_USER=${DB_CONFIG_USER}
       - DB_CONFIG_PASSWORD=${DB_CONFIG_PASSWORD}
-      - DB_CONFIG_HOST=${DB_CONFIG_HOST}
+      - DB_CONFIG_HOST=192.168.15.37
       - DB_CONFIG_PORT=${DB_CONFIG_PORT}
       - DATABASE_URL=${DATABASE_URL}
       # Configurações Flask
@@ -32,8 +32,6 @@ services:
     extra_hosts:
       # Permite acesso ao host da máquina (para banco externo)
       - "host.docker.internal:host-gateway"
-    networks:
-      - telegram-network
     # Health check
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/api/stats').read()\" || exit 1"]
@@ -41,8 +39,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-networks:
-  telegram-network:
-    driver: bridge
-
