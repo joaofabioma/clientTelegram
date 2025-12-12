@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS telegram_sessions (
 DROP TABLE IF EXISTS telegram_events;
 CREATE TABLE IF NOT EXISTS telegram_events(
     id BIGSERIAL PRIMARY KEY,
+    event_name VARCHAR,
+    event_message_id VARCHAR,
     event_data BYTEA,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
