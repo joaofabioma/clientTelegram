@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Tipos de Eventos - Admin Telegram{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-tags"></i> Tipos de Eventos</h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Lista de Tipos de Eventos (Ordenado por Hits)</h5>
+    </div>
+    <div class="card-body">
+        {% if types %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Tipo</th>
+                        <th>Descrição</th>
+                        <th>Hits</th>
+                        <th>Criado em</th>
+                        <th>Atualizado em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for type in types %}
+                    <tr>
+                        <td>{{ type[0] }}</td>
+                        <td><code>{{ type[1] }}</code></td>
+                        <td>{{ type[2] or '-' }}</td>
+                        <td>
+                            <span class="badge bg-primary rounded-pill">{{ type[3] }}</span>
+                        </td>
+                        <td>{{ type[4].strftime('%d/%m/%Y %H:%M:%S') if type[4] else 'N/A' }}</td>
+                        <td>{{ type[5].strftime('%d/%m/%Y %H:%M:%S') if type[5] else 'Nunca' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Nenhum tipo de evento encontrado no banco de dados.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

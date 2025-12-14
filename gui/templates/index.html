@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Admin Telegram{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+</div>
+
+<!-- Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card card-stat bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Sessões</h6>
+                        <h2 class="mb-0">{{ sessions_count }}</h2>
+                    </div>
+                    <i class="bi bi-person-badge" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card card-stat bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Eventos</h6>
+                        <h2 class="mb-0">{{ events_count }}</h2>
+                    </div>
+                    <i class="bi bi-calendar-event" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card card-stat bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Tipos de Eventos</h6>
+                        <h2 class="mb-0">{{ types_count }}</h2>
+                    </div>
+                    <i class="bi bi-tags" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top Tipos de Eventos -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-trophy"></i> Top Tipos de Eventos</h5>
+            </div>
+            <div class="card-body">
+                {% if top_types %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Hits</th>
+                                <th>Última Atualização</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type_name, hits, created_at, updated_at in top_types %}
+                            <tr>
+                                <td><code>{{ type_name }}</code></td>
+                                <td><span class="badge bg-primary">{{ hits }}</span></td>
+                                <td>
+                                    {% if updated_at %}
+                                        {{ updated_at.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        {{ created_at.strftime('%d/%m/%Y %H:%M') }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum tipo de evento encontrado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Eventos Recentes -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Eventos Recentes</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_events %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event_id, created_at in recent_events %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('event_detail', event_id=event_id) }}" class="text-decoration-none">
+                                        #{{ event_id }}
+                                    </a>
+                                </td>
+                                <td>{{ created_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('events') }}" class="btn btn-sm btn-outline-primary">Ver todos os eventos</a>
+                {% else %}
+                <p class="text-muted">Nenhum evento encontrado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Atualiza as estatísticas a cada 30 segundos
+    let updateInterval;
+    
+    function updateStats() {
+        fetch('{{ url_for("api_stats") }}')
+            .then(response => response.json())
+            .then(data => {
+                // Atualiza os contadores
+                const sessionsElement = document.querySelector('.card-stat.bg-primary h2');
+                const eventsElement = document.querySelector('.card-stat.bg-success h2');
+                const typesElement = document.querySelector('.card-stat.bg-info h2');
+                
+                if (sessionsElement) sessionsElement.textContent = data.sessions;
+                if (eventsElement) eventsElement.textContent = data.events;
+                if (typesElement) typesElement.textContent = data.types;
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar estatísticas:', error);
+            });
+    }
+    
+    // Inicia atualização automática quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        updateInterval = setInterval(updateStats, 30000); // Atualiza a cada 30 segundos
+        
+        // Atualiza imediatamente ao carregar
+        updateStats();
+    });
+    
+    // Para a atualização quando a página é fechada
+    window.addEventListener('beforeunload', function() {
+        if (updateInterval) {
+            clearInterval(updateInterval);
+        }
+    });
+</script>
+{% endblock %}
+
