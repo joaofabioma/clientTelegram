@@ -8,12 +8,12 @@ from config.postgres_events import PostgresEvents
 from telethon.errors import RPCError
 from telethon.tl.types import UpdatesTooLong
 import config.libs as libs
+
+
 async def main():
-    # Usa get_db_config() para garantir uma cópia válida e atualizada
     try:
         db_config_validated = get_db_config()
         print(f"{libs.horaagora()} - ✅ db_config validado!")
-        #print(f"✅ db_config validado: host={db_config_validated.get('host')}, port={db_config_validated.get('port')}, dbname={db_config_validated.get('dbname')}")
     except Exception as e:
         print(f"{libs.horaagora()} - ❌ Erro ao obter db_config validado: {e}")
         print(f"{libs.horaagora()} -    Tentando usar db_config global...")
@@ -36,7 +36,6 @@ async def main():
                 msg_tipo_evento = f"{libs.GREEN}{tipo_evento}{libs.ENDC}"
             elif tipo_evento == 'UpdateDeleteChannelMessages':
                 msg_tipo_evento = f"{libs.RED}{tipo_evento}{libs.ENDC}"
-                print(getattr(getattr(event, 'message', None), 'id', None))
             elif tipo_evento == 'UpdateReadChannelInbox':
                 msg_tipo_evento = f"{libs.LIGHTBLUE}{tipo_evento}{libs.ENDC}"
             elif tipo_evento == 'UpdateUserStatus':
