@@ -26,7 +26,6 @@ def get_db_connection():
         db_config_validated = get_db_config()
     except Exception as e:
         print(f"{libs.horaagora()} - ❌ Erro ao obter db_config validado: {e}")
-        # Fallback para db_config global
         db_config_validated = db_config.copy() if isinstance(db_config, dict) else {}
         if 'host' not in db_config_validated or not db_config_validated.get('host'):
             print(f"{libs.horaagora()} - ❌ Erro: DB_CONFIG_HOST não está definido! O psycopg2 usaria 'localhost' como padrão.")
@@ -279,7 +278,7 @@ def api_stats():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    # Configurações de produção
+    # produção
     debug_mode = os.getenv('FLASK_ENV', 'production') == 'development'
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', '5000'))
