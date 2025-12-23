@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import sys
 import os
 import pickle
@@ -18,6 +19,47 @@ app = Flask(__name__)
 app.config['ENV'] = os.getenv('FLASK_ENV', 'production')
 app.config['DEBUG'] = os.getenv('FLASK_ENV', 'production') == 'development'
 app.config['TESTING'] = False
+
+# Configuração do secret key para sessões
+secret_key = os.getenv('FLASK_SECRET_KEY', None)
+if not secret_key:
+    # Gera uma chave secreta padrão se não estiver definida (não recomendado para produção)
+    secret_key = os.urandom(24).hex()
+    print(f"{libs.horaagora()} - ⚠️  AVISO: FLASK_SECRET_KEY não definido. Usando chave gerada automaticamente.")
+    print(f"{libs.horaagora()} -    Configure FLASK_SECRET_KEY nas variáveis de ambiente para produção.")
+app.config['SECRET_KEY'] = secret_key
+
+# Configuração do Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Por favor, faça login para acessar esta página.'
+login_manager.login_message_category = 'info'
+
+# Classe User para Flask-Login
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+def verify_credentials(username: str, password: str) -> bool:
+    """Verifica as credenciais do usuário."""
+    # Obtém credenciais das variáveis de ambiente
+    env_username = os.getenv('FLASK_ADMIN_USERNAME', 'master')
+    env_password = os.getenv('FLASK_ADMIN_PASSWORD', 'S&gred0')
+
+    if not env_password:
+        print(f"{libs.horaagora()} - ⚠️  AVISO: FLASK_ADMIN_PASSWORD não definido. Usando senha padrão 'master'.")
+        print(f"{libs.horaagora()} -    Configure FLASK_ADMIN_PASSWORD nas variáveis de ambiente para produção.")
+        env_password = 'admin'
+
+    # Verifica se o usuário e senha correspondem
+    if username == env_username and password == env_password:
+        return True
+    return False
 
 def get_db_connection():
     """Cria e retorna uma conexão com o banco de dados."""
@@ -53,7 +95,36 @@ def get_db_connection():
         print(f"{libs.horaagora()} -    db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
         return None
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Página de login."""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+
+        if verify_credentials(username, password):
+            user = User(username)
+            login_user(user, remember=True)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Usuário ou senha inválidos.', 'error')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    """Logout do usuário."""
+    logout_user()
+    flash('Logout realizado com sucesso.', 'info')
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     """Página inicial com dashboard."""
     conn = get_db_connection()
@@ -103,6 +174,7 @@ def index():
         return render_template('error.html', error=str(e))
 
 @app.route('/sessions')
+@login_required
 def sessions():
     """Lista todas as sessões do Telegram."""
     conn = get_db_connection()
@@ -126,6 +198,7 @@ def sessions():
         return render_template('error.html', error=str(e))
 
 @app.route('/events')
+@login_required
 def events():
     """Lista todos os eventos do Telegram."""
     conn = get_db_connection()
@@ -166,6 +239,7 @@ def events():
         return render_template('error.html', error=str(e))
 
 @app.route('/event-types')
+@login_required
 def event_types():
     """Lista todos os tipos de eventos."""
     conn = get_db_connection()
@@ -188,6 +262,7 @@ def event_types():
         return render_template('error.html', error=str(e))
 
 @app.route('/event/<int:event_id>')
+@login_required
 def event_detail(event_id):
     """Visualiza detalhes de um evento específico (deserializado)."""
     conn = get_db_connection()
@@ -245,6 +320,7 @@ def _convert_to_json_serializable(obj):
         return str(obj)
 
 @app.route('/api/stats')
+@login_required
 def api_stats():
     """API endpoint para estatísticas em JSON."""
     conn = get_db_connection()
