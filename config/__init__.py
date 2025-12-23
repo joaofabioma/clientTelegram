@@ -4,17 +4,24 @@ import config.libs as libs
 
 path_dotenv = find_dotenv()
 if path_dotenv:
-    load_dotenv(path_dotenv)  # override=True garante que valores do .env sobrescrevam os do ambiente
+    # override=True garante que valores do .env sobrescrevam os do ambiente
+    load_dotenv(path_dotenv, override=True)
     print(f"{libs.horaagora()} - ✅ Arquivo .env carregado de: {path_dotenv}")
 else:
     print(f"{libs.horaagora()} - ℹ️  Arquivo .env não encontrado, usando variáveis de ambiente")
 
 db_host_env = os.getenv("DB_CONFIG_HOST")
+db_port_env = os.getenv("DB_CONFIG_PORT")
 
 if db_host_env:
     print(f"{libs.horaagora()} - 🔍 DB_CONFIG_HOST encontrado: {db_host_env}")
 else:
     print(f"{libs.horaagora()} - ⚠️  DB_CONFIG_HOST não encontrado nas variáveis de ambiente!")
+
+if db_port_env:
+    print(f"{libs.horaagora()} - 🔍 DB_CONFIG_PORT encontrado: {db_port_env}")
+else:
+    print(f"{libs.horaagora()} - ⚠️  DB_CONFIG_PORT não encontrado nas variáveis de ambiente!")
 
 config = {
     "api_id": os.getenv("APP_IP"),
@@ -61,14 +68,19 @@ else:
 # Log da configuração (sem mostrar senha)
 if db_config:
     db_config_log = {k: ("***" if k == "password" else v) for k, v in db_config.items()}
-    print(f"{libs.horaagora()} - 📊 Configuração do banco de dados!")
-    # print(f"{libs.horaagora()} - 📊 Configuração do banco de dados: {db_config_log}")
+    print(f"{libs.horaagora()} - 📊 Configuração do banco de dados: {db_config_log}")
+    if 'port' in db_config:
+        print(f"{libs.horaagora()} - 🔍 Porta do banco de dados: {db_config['port']} (tipo: {type(db_config['port']).__name__})")
 else:
     print(f"{libs.horaagora()} - ⚠️  Aviso: Nenhuma configuração de banco de dados encontrada!")
 
 
 def get_db_config():
-    return _db_config_raw
+    """
+    Retorna a configuração do banco de dados processada e validada.
+    Esta função garante que sempre retornamos uma cópia independente e válida.
+    """
+    return get_db_config_copy()
 
 
 def get_db_config_copy():
