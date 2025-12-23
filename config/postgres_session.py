@@ -16,7 +16,7 @@ class PostgresSession(MemorySession):
             return psycopg2.connect(**self.db_config)
         except psycopg2.OperationalError as e:
             print(f"{libs.horaagora()} - ❌ Erro ao conectar ao PostgreSQL: {e}")
-            print(f"{libs.horaagora()} - psession:   Configuração: host={self.db_config.get('host')}, port={self.db_config.get('port')}, dbname={self.db_config.get('dbname')}")
+            # print(f"{libs.horaagora()} - psession:   Configuração: host={self.db_config.get('host')}, port={self.db_config.get('port')}, dbname={self.db_config.get('dbname')}")
             print(f"{libs.horaagora()} -    db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in self.db_config.items())}")
             raise
 

@@ -11,7 +11,7 @@ else:
     print(f"{libs.horaagora()} - ℹ️  Arquivo .env não encontrado, usando variáveis de ambiente")
 
 db_host_env = os.getenv("DB_CONFIG_HOST")
-db_port_env = os.getenv("DB_CONFIG_PORT")
+db_port_env = int(os.getenv("DB_CONFIG_PORT"))
 
 if db_host_env:
     print(f"{libs.horaagora()} - 🔍 DB_CONFIG_HOST encontrado: {db_host_env}")
@@ -37,7 +37,7 @@ _db_config_raw = {
     "user": os.getenv("DB_CONFIG_USER"),
     "password": os.getenv("DB_CONFIG_PASSWORD"),
     "host": os.getenv("DB_CONFIG_HOST"),
-    "port": os.getenv("DB_CONFIG_PORT")
+    "port": int(os.getenv("DB_CONFIG_PORT"))
 }
 
 # Filtra apenas valores não-None e converte port para int se existir
@@ -95,7 +95,7 @@ def get_db_config_copy():
         "user": os.getenv("DB_CONFIG_USER"),
         "password": os.getenv("DB_CONFIG_PASSWORD"),
         "host": os.getenv("DB_CONFIG_HOST"),
-        "port": os.getenv("DB_CONFIG_PORT")
+        "port": int(os.getenv("DB_CONFIG_PORT"))
     }
 
     # Cria uma nova cópia do db_config
