@@ -2,22 +2,22 @@ import psycopg2
 from telethon.sessions import MemorySession
 import pickle
 import config.libs as libs
+from config.db import DB_CONFIG
+
 
 class PostgresSession(MemorySession):
-    def __init__(self, session_name, db_config):
+    def __init__(self, session_name):
         super().__init__()
         self.session_name = session_name
         # Faz uma cópia profunda do db_config para evitar modificações acidentais
-        self.db_config = db_config.copy() if isinstance(db_config, dict) else dict(db_config)
+        # self.db_config = db_config.copy() if isinstance(db_config, dict) else dict(db_config)
         self._load_session()
 
     def _connect(self):
         try:
-            return psycopg2.connect(**self.db_config)
+            return psycopg2.connect(**DB_CONFIG)
         except psycopg2.OperationalError as e:
             print(f"{libs.horaagora()} -(PostgresSession->_connect)- ❌ Erro ao conectar ao PostgreSQL: {e}")
-            # print(f"{libs.horaagora()} - psession:   Configuração: host={self.db_config.get('host')}, port={self.db_config.get('port')}, dbname={self.db_config.get('dbname')}")
-            print(f"{libs.horaagora()} -(PostgresSession->_connect)- db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in self.db_config.items())}")
             raise
 
     def _load_session(self):

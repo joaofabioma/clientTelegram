@@ -2,12 +2,13 @@
 import asyncio
 import sys
 from telethon import TelegramClient, events
-from config import config, db_config, app_shortname, get_db_config
+from config import config, app_shortname, get_db_config
 from config.postgres_session import PostgresSession
 from config.postgres_events import PostgresEvents
 from telethon.errors import RPCError
 from telethon.tl.types import UpdatesTooLong
 import config.libs as libs
+from config.db import DB_CONFIG
 
 
 async def main():
@@ -15,9 +16,9 @@ async def main():
         db_config_validated = get_db_config()
         print(f"{libs.horaagora()} - ✅ db_config validado!")
     except Exception as e:
-        print(f"{libs.horaagora()} - ❌ Erro ao obter db_config validado: {e}")
-        print(f"{libs.horaagora()} -    Tentando usar db_config global...")
-        db_config_validated = db_config.copy() if isinstance(db_config, dict) else {}
+        print(f"{libs.horaagora()} - ❌ Erro ao obter DB_CONFIG validado: {e}")
+        print(f"{libs.horaagora()} -    Tentando usar DB_CONFIG global...")
+        db_config_validated = DB_CONFIG.copy() if isinstance(DB_CONFIG, dict) else {}
         if 'host' not in db_config_validated or not db_config_validated.get('host'):
             raise ValueError(f"{libs.horaagora()} - ❌ Não foi possível obter uma configuração de banco de dados válida!")
 

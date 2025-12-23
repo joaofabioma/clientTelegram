@@ -1,6 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 import os
 import config.libs as libs
+from db import DB_CONFIG
 
 path_dotenv = find_dotenv()
 if path_dotenv:
@@ -31,46 +32,36 @@ config = {
     "phpass": os.getenv("TEL_PASSWORD"),
 }
 
-# Remove valores None do db_config para evitar que psycopg2 use "localhost" como padrão
-_db_config_raw = {
-    "dbname": os.getenv("DB_CONFIG_DBNAME"),
-    "user": os.getenv("DB_CONFIG_USER"),
-    "password": os.getenv("DB_CONFIG_PASSWORD"),
-    "host": os.getenv("DB_CONFIG_HOST"),
-    "port": int(os.getenv("DB_CONFIG_PORT"))
-}
-
 # Filtra apenas valores não-None e converte port para int se existir
-db_config = {}
-for k, v in _db_config_raw.items():
+for k, v in DB_CONFIG.items():
     if v is not None:
         if k == "port":
             try:
-                db_config[k] = int(v)
+                DB_CONFIG[k] = int(v)
             except (ValueError, TypeError):
                 print(f"{libs.horaagora()} - ⚠️  Aviso: Porta inválida '{v}', ignorando...")
         else:
-            db_config[k] = v
+            DB_CONFIG[k] = v
 
 # Validação crítica: host deve estar sempre definido
-if 'host' not in db_config or not db_config.get('host') or db_config.get('host') == '':
+if 'host' not in DB_CONFIG or not DB_CONFIG.get('host') or DB_CONFIG.get('host') == '':
     print(f"{libs.horaagora()} - ❌ ERRO CRÍTICO: DB_CONFIG_HOST não está definido ou está vazio!")
     print(f"{libs.horaagora()} -    O psycopg2 usaria 'localhost' como padrão, o que causará erros de conexão.")
     print(f"{libs.horaagora()} -    Variáveis de ambiente disponíveis: {[k for k in os.environ.keys() if 'DB_CONFIG' in k]}")
     # Não definimos um host padrão, deixamos vazio para forçar o erro
 else:
     # Garante que host não seja "localhost" a menos que explicitamente definido
-    host_value = db_config.get('host', '').strip()
+    host_value = DB_CONFIG.get('host', '').strip()
     if host_value.lower() == 'localhost' and os.getenv("DB_CONFIG_HOST", "").strip().lower() != 'localhost':
         print(f"{libs.horaagora()} - ⚠️  AVISO: Host está definido como 'localhost', mas DB_CONFIG_HOST={os.getenv('DB_CONFIG_HOST')}")
         print(f"{libs.horaagora()} -    Isso pode causar problemas de conexão em containers Docker.")
 
 # Log da configuração (sem mostrar senha)
-if db_config:
-    db_config_log = {k: ("***" if k == "password" else v) for k, v in db_config.items()}
+if DB_CONFIG:
+    db_config_log = {k: ("***" if k == "password" else v) for k, v in DB_CONFIG.items()}
     print(f"{libs.horaagora()} - 📊 Configuração do banco de dados: {db_config_log}")
-    if 'port' in db_config:
-        print(f"{libs.horaagora()} - 🔍 Porta do banco de dados: {db_config['port']} (tipo: {type(db_config['port']).__name__})")
+    if 'port' in DB_CONFIG:
+        print(f"{libs.horaagora()} - 🔍 Porta do banco de dados: {DB_CONFIG['port']} (tipo: {type(DB_CONFIG['port']).__name__})")
 else:
     print(f"{libs.horaagora()} - ⚠️  Aviso: Nenhuma configuração de banco de dados encontrada!")
 
@@ -88,19 +79,10 @@ def get_db_config_copy():
     Retorna uma cópia do db_config válido.
     Esta função garante que sempre retornamos uma cópia independente e válida.
     """
-    # Recarrega as variáveis de ambiente para garantir valores atualizados
-    # (útil quando há múltiplos processos importando o módulo)
-    _db_config_raw = {
-        "dbname": os.getenv("DB_CONFIG_DBNAME"),
-        "user": os.getenv("DB_CONFIG_USER"),
-        "password": os.getenv("DB_CONFIG_PASSWORD"),
-        "host": os.getenv("DB_CONFIG_HOST"),
-        "port": int(os.getenv("DB_CONFIG_PORT"))
-    }
 
     # Cria uma nova cópia do db_config
     config_copy = {}
-    for k, v in _db_config_raw.items():
+    for k, v in DB_CONFIG.items():
         if v is not None:
             if k == "port":
                 try:

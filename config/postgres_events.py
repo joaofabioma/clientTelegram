@@ -1,35 +1,35 @@
 import psycopg2
 import pickle
+from config.db import DB_CONFIG
 
 class PostgresEvents():
-    def __init__(self, session_name, db_config):
+    def __init__(self, session_name):
         super().__init__()
         self.session_name = session_name
         # Faz uma cópia profunda do db_config para evitar modificações acidentais
-        self.db_config = db_config.copy() if isinstance(db_config, dict) else dict(db_config)
 
     def _connect(self):
         # Valida se host está definido (psycopg2 usa "localhost" como padrão se não estiver)
-        if 'host' not in self.db_config or not self.db_config.get('host'):
+        if 'host' not in DB_CONFIG or not DB_CONFIG.get('host'):
             error_msg = f"❌ DB_CONFIG_HOST não está definido! O psycopg2 usaria 'localhost' como padrão."
             print(error_msg)
-            print(f"   db_config recebido: {list(self.db_config.keys())}")
+            print(f"   db_config recebido: {list(DB_CONFIG.keys())}")
             raise ValueError(error_msg)
 
         # Validação adicional: host não pode ser localhost a menos que explicitamente necessário
-        host_value = str(self.db_config.get('host', '')).strip()
+        host_value = str(DB_CONFIG.get('host', '')).strip()
         if not host_value or host_value == 'localhost':
             error_msg = f"❌ Host inválido: '{host_value}'. Verifique DB_CONFIG_HOST nas variáveis de ambiente."
             print(error_msg)
-            print(f"   db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in self.db_config.items())}")
+            print(f"   db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in DB_CONFIG.items())}")
             raise ValueError(error_msg)
 
         try:
-            return psycopg2.connect(**self.db_config)
+            return psycopg2.connect(**DB_CONFIG)
         except psycopg2.OperationalError as e:
             print(f"❌ Erro ao conectar ao PostgreSQL: {e}")
-            print(f"events:   Configuração: host={self.db_config.get('host')}, port={self.db_config.get('port')}, dbname={self.db_config.get('dbname')}")
-            print(f"   db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in self.db_config.items())}")
+            print(f"events:   Configuração: host={DB_CONFIG.get('host')}, port={DB_CONFIG.get('port')}, dbname={DB_CONFIG.get('dbname')}")
+            print(f"   DB_CONFIG completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in DB_CONFIG.items())}")
             raise
 
     def save_type_event(self, event_type, event_type_desc=""):
