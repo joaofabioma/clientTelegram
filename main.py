@@ -22,8 +22,8 @@ async def main():
         if 'host' not in db_config_validated or not db_config_validated.get('host'):
             raise ValueError(f"{libs.horaagora()} - ❌ Não foi possível obter uma configuração de banco de dados válida!")
 
-    session = PostgresSession(config["session"], db_config_validated)
-    eventos = PostgresEvents(config["session"], db_config_validated)
+    session = PostgresSession(config["session"])
+    eventos = PostgresEvents(config["session"])
     client = TelegramClient(session, config["api_id"], config["api_hash"])
     await client.start(phone=config["phone"], password=config["phpass"])
 
