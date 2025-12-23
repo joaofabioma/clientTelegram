@@ -21,6 +21,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Nome do Evento</th>
                         <th>Tamanho (bytes)</th>
                         <th>Criado em</th>
                         <th>Atualizado em</th>
@@ -32,11 +33,18 @@
                     {% for event in events %}
                     <tr>
                         <td>#{{ event[0] }}</td>
-                        <td>{{ "{:,}".format(event[4] or 0) }}</td>
-                        <td>{{ event[1].strftime('%d/%m/%Y %H:%M:%S') if event[1] else 'N/A' }}</td>
-                        <td>{{ event[2].strftime('%d/%m/%Y %H:%M:%S') if event[2] else 'Nunca' }}</td>
                         <td>
-                            {% if event[3] %}
+                            {% if event[1] %}
+                                <span class="badge bg-info text-dark">{{ event[1] }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ "{:,}".format(event[5] or 0) }}</td>
+                        <td>{{ event[2].strftime('%d/%m/%Y %H:%M:%S') if event[2] else 'N/A' }}</td>
+                        <td>{{ event[3].strftime('%d/%m/%Y %H:%M:%S') if event[3] else 'Nunca' }}</td>
+                        <td>
+                            {% if event[4] %}
                                 <span class="badge bg-danger">Excluído</span>
                             {% else %}
                                 <span class="badge bg-success">Ativo</span>
@@ -97,7 +105,7 @@
         {% endif %}
         {% else %}
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> Nenhum evento encontrado no banco de dados.
+            <i class="bi bi-info-circle"></i> Nenhum evento encontrado no banco de dados neste momento.
         </div>
         {% endif %}
     </div>
