@@ -46,7 +46,7 @@ async def main():
                 msg_tipo_evento = f"{libs.YELLOW_BOLD}{tipo_evento}{libs.ENDC}"
             else:
                 msg_tipo_evento = tipo_evento
-            print(f"{libs.horaagora()} -  Evento recebido: {msg_tipo_evento}")
+            # print(f"{libs.horaagora()} -  Evento recebido: {msg_tipo_evento}")
 
 
             eventos.save_type_event(tipo_evento)
