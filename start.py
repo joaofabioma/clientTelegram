@@ -106,7 +106,7 @@ def start_all():
 
     # Handler para sinal de interrupção
     def signal_handler(sig, frame):
-        print("\n{libs.horaagora()} - ⏹️  Encerrando serviços...")
+        print(f"\n{libs.horaagora()} - ⏹️  Encerrando serviços...")
         for p in processes:
             if p.is_alive():
                 p.terminate()
