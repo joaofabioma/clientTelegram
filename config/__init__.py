@@ -1,7 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 import os
 import config.libs as libs
-from db import DB_CONFIG
+from config.db import DB_CONFIG
 
 path_dotenv = find_dotenv()
 if path_dotenv:
