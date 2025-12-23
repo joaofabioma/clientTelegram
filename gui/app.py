@@ -5,11 +5,12 @@ import os
 import pickle
 import json
 from config import libs
+from config.db import DB_CONFIG
 
 # Adiciona o diretório pai ao path para importar config
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import db_config, get_db_config
+from config import get_db_config
 import psycopg2
 from datetime import datetime
 
@@ -57,6 +58,7 @@ def verify_credentials(username: str, password: str) -> bool:
         env_password = 'admin'
 
     # Verifica se o usuário e senha correspondem
+    print(username ,env_username ,password,env_password)
     if username == env_username and password == env_password:
         return True
     return False
@@ -67,18 +69,18 @@ def get_db_connection():
     try:
         db_config_validated = get_db_config()
     except Exception as e:
-        print(f"{libs.horaagora()} - ❌ Erro ao obter db_config validado: {e}")
-        db_config_validated = db_config.copy() if isinstance(db_config, dict) else {}
+        print(f"{libs.horaagora()} - ❌ Erro ao obter DB_CONFIG validado: {e}")
+        db_config_validated = DB_CONFIG.copy() if isinstance(DB_CONFIG, dict) else {}
         if 'host' not in db_config_validated or not db_config_validated.get('host'):
             print(f"{libs.horaagora()} - ❌ Erro: DB_CONFIG_HOST não está definido! O psycopg2 usaria 'localhost' como padrão.")
-            print(f"{libs.horaagora()} -    db_config disponível: {list(db_config_validated.keys())}")
+            print(f"{libs.horaagora()} -    DB_CONFIG disponível: {list(db_config_validated.keys())}")
             return None
 
         # Validação adicional: host não pode ser localhost
         host_value = str(db_config_validated.get('host', '')).strip()
         if not host_value or host_value == 'localhost':
             print(f"{libs.horaagora()} - ❌ Host inválido: '{host_value}'. Verifique DB_CONFIG_HOST nas variáveis de ambiente.")
-            print(f"{libs.horaagora()} -    db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
+            print(f"{libs.horaagora()} -    DB_CONFIG completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
             return None
 
     try:
@@ -87,12 +89,12 @@ def get_db_connection():
     except psycopg2.OperationalError as e:
         print(f"{libs.horaagora()} - ❌ Erro ao conectar ao PostgreSQL: {e}")
         print(f"{libs.horaagora()} - app.py:   Configuração: host={db_config_validated.get('host')}, port={db_config_validated.get('port')}, dbname={db_config_validated.get('dbname')}")
-        print(f"{libs.horaagora()} -    db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
+        print(f"{libs.horaagora()} -    DB_CONFIG completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
         print(f"{libs.horaagora()} -    Dica: Se estiver usando Docker, verifique se DB_CONFIG_HOST está configurado corretamente")
         return None
     except Exception as e:
         print(f"{libs.horaagora()} - ❌ Erro inesperado ao conectar ao banco de dados: {e}")
-        print(f"{libs.horaagora()} -    db_config completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
+        print(f"{libs.horaagora()} -    DB_CONFIG completo (sem senha): {dict((k, '***' if k == 'password' else v) for k, v in db_config_validated.items())}")
         return None
 
 @app.route('/login', methods=['GET', 'POST'])
