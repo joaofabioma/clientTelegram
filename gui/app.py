@@ -144,7 +144,7 @@ def events():
 
             # Busca eventos paginados
             cur.execute("""
-                SELECT id, created_at, updated_at, deleted_at,
+                SELECT id, event_name, created_at, updated_at, deleted_at,
                        LENGTH(event_data) as event_size
                 FROM telegram_events
                 ORDER BY created_at DESC
